@@ -1,31 +1,29 @@
 import express from "express";
-import { mapOrder } from "~/utils/sorts.js";
+import { CONNECT_DB, GET_DB } from "~/config/mongodb";
 
-const app = express();
+const SERVER_START = () => {
+    const app = express();
 
-const hostname = "localhost";
-const port = 5503;
+    const hostname = "localhost";
+    const port = 5503;
 
-app.get("/", (req, res) => {
-    // Test Absolute import mapOrder
+    app.get("/", async (req, res) => {
+        res.json(await GET_DB().listCollections().toArray());
+    });
 
-    console.log(
-        mapOrder(
-            [
-                { id: "id-1", name: "One" },
-                { id: "id-2", name: "Two" },
-                { id: "id-3", name: "Three" },
-                { id: "id-4", name: "Four" },
-                { id: "id-5", name: "Five" },
-            ],
-            ["id-5", "id-4", "id-2", "id-3", "id-1"],
-            "id"
-        )
-    );
-    res.end("<h1>Hello World!</h1><hr>");
-});
+    app.listen(port, hostname, () => {
+        // eslint-disable-next-line no-console
+        console.log(
+            `Hello Minh Anh, I am running at http://${hostname}:${port}`
+        );
+    });
+};
 
-app.listen(port, hostname, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Hello Minh Anh, I am running at ${hostname}:${port}`);
-});
+// Khi kết nối database thành công thì mới SERVER_START
+CONNECT_DB()
+    .then(() => console.log("Kết nối database thành công!"))
+    .then(() => SERVER_START())
+    .catch((error) => {
+        console.log(error);
+        process.exit(0);
+    });

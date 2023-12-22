@@ -1,21 +1,25 @@
 import express from "express";
-import { CONNECT_DB, GET_DB } from "~/config/mongodb";
+import exitHook from "async-exit-hook";
+import { CONNECT_DB, GET_DB, CLOSE_DB } from "~/config/mongodb";
+import { env } from "~/config/environment";
 
 const SERVER_START = () => {
     const app = express();
-
-    const hostname = "localhost";
-    const port = 5503;
 
     app.get("/", async (req, res) => {
         res.json(await GET_DB().listCollections().toArray());
     });
 
-    app.listen(port, hostname, () => {
+    app.listen(env.APP_PORT, env.APP_HOST, () => {
         // eslint-disable-next-line no-console
         console.log(
-            `Hello Minh Anh, I am running at http://${hostname}:${port}`
+            `Hello ${env.AUTHOR}, I am running at http://${env.APP_HOST}:${env.APP_PORT}`
         );
+    });
+
+    exitHook(() => {
+        CLOSE_DB();
+        console.log("Đã đóng kết nối database!");
     });
 };
 

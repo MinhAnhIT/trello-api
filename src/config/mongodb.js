@@ -1,14 +1,11 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
-
-const MONGODB_URI =
-    "mongodb+srv://minhanhit:nvWoagMeWaRA93zR@cluster0-minhanhit.zzphebk.mongodb.net/?retryWrites=true&w=majority";
-const DATABASE_NAME = "trello-minhanhit";
+import { env } from "~/config/environment";
 
 // Khởi tạo đối tượng bằng null vì chưa connect
 let trelloDatabasesInstance = null;
 
 // Khởi tạo đối tượng MongoClienInstance để connect
-const MongoClienInstance = new MongoClient(MONGODB_URI, {
+const MongoClienInstance = new MongoClient(env.MONGODB_URI, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
@@ -22,7 +19,12 @@ export const CONNECT_DB = async () => {
     await MongoClienInstance.connect();
 
     // Kết nối thành công thì ra database theo tên và gán nó vào trelloDatabasesInstance
-    trelloDatabasesInstance = MongoClienInstance.db(DATABASE_NAME);
+    trelloDatabasesInstance = MongoClienInstance.db(env.DATABASE_NAME);
+};
+
+// Đóng kết nối với database khi cần
+export const CLOSE_DB = async () => {
+    await MongoClienInstance.close();
 };
 
 export const GET_DB = () => {

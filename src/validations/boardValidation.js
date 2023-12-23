@@ -8,15 +8,13 @@ const createNew = async (req, res, next) => {
     });
 
     try {
-        // console.log(req.body);
         // abortEarly: không bị ngừng sớm khi dữ liệu sai
         await correctCondition.validateAsync(req.body, {
             abortEarly: false,
         });
-        // next();
-        res.status(StatusCodes.CREATED).json({
-            message: "Post create new board OK",
-        });
+
+        // Validate xong thì đi tiếp xong Controller
+        next();
     } catch (error) {
         res.status(StatusCodes.UNPROCESSABLE_ENTITY).json({
             errors: new Error(error).message,

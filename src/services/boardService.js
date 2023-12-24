@@ -14,7 +14,6 @@ const createNew = async (reqBody) => {
 
         // Lấy dữ liệu vừa tạo trong DB dựa vào id trả về từ createdBoard (tùy dự án có cần hay không)
         const getNewBoard = await boardModel.findOneById(createdBoard.insertedId);
-        console.log("createNew -> getNewBoard: ", getNewBoard);
 
         // Trả dữ liệu về Controller
         return getNewBoard;

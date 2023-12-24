@@ -10,9 +10,7 @@ const createNew = async (req, res, next) => {
 
     try {
         // abortEarly: không bị ngừng sớm khi dữ liệu sai
-        await correctCondition.validateAsync(req.body, {
-            abortEarly: false,
-        });
+        await correctCondition.validateAsync(req.body, { abortEarly: false });
 
         // Validate xong thì đi tiếp xong Controller
         next();

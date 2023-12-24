@@ -1,7 +1,8 @@
-import { slugify } from "~/utils/formatters";
-import { boardModel } from "~/models/boardModel";
-import ApiError from "~/utils/ApiError";
-import { StatusCodes } from "http-status-codes";
+import { slugify } from '~/utils/formatters';
+import { boardModel } from '~/models/boardModel';
+import ApiError from '~/utils/ApiError';
+import { StatusCodes } from 'http-status-codes';
+import { cloneDeep } from 'lodash';
 
 const createNew = async (reqBody) => {
     try {
@@ -29,10 +30,22 @@ const getDetails = async (boardId) => {
         // Gọi tới tầng model
         const board = await boardModel.getDetails(boardId);
         if (!boardId) {
-            throw new ApiError(StatusCodes.NOT_FOUND, "Board not found!");
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found!');
         }
+
+        // Sao chép board
+        const resBoard = cloneDeep(board);
+
+        // Thực hiện tách Card và chuyển vào Column tương ứng
+        resBoard.columns.forEach((column) => {
+            column.cards = resBoard.cards.filter((card) => card.columnId.toString() === column._id.toString());
+        });
+
+        // Xóa cards khỏi resBoard
+        delete resBoard.cards;
+
         // Trả dữ liệu về Controller
-        return board;
+        return resBoard;
     } catch (error) {
         throw error;
     }

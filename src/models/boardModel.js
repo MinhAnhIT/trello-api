@@ -1,9 +1,9 @@
-import Joi from "joi";
-import { GET_DB } from "~/config/mongodb";
-import { ObjectId } from "mongodb";
+import Joi from "joi"
+import { GET_DB } from "~/config/mongodb"
+import { ObjectId } from "mongodb"
 
 // Define Collection (name & schema)
-const BOARD_COLLECTION_NAME = "boards";
+const BOARD_COLLECTION_NAME = "boards"
 const BOARD_COLLECTION_SCHEMA = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict(),
     slug: Joi.string().required().min(3).trim().strict(),
@@ -15,35 +15,52 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
     updatedAt: Joi.date().timestamp("javascript").default(null),
 
     _destroy: Joi.boolean().default(false),
-});
+})
 
 const validateBeforeCreate = async (data) => {
-    return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false });
-};
+    return await BOARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
+}
 
 const createNew = async (data) => {
     try {
         // Valid dữ liệu
-        const validData = await validateBeforeCreate(data);
+        const validData = await validateBeforeCreate(data)
 
         // Dùng dữ liệu đã Valid để tạo vào DB
-        return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData);
+        return await GET_DB().collection(BOARD_COLLECTION_NAME).insertOne(validData)
     } catch (error) {
-        throw new Error(error);
+        throw new Error(error)
     }
-};
+}
 
 const findOneById = async (id) => {
-    return await GET_DB()
-        .collection(BOARD_COLLECTION_NAME)
-        .findOne({
-            _id: new ObjectId(id),
-        });
-};
+    try {
+        return await GET_DB()
+            .collection(BOARD_COLLECTION_NAME)
+            .findOne({
+                _id: new ObjectId(id),
+            })
+    } catch (error) {
+        throw new Error(error)
+    }
+}
+
+const getDetails = async (boardId) => {
+    try {
+        return await GET_DB()
+            .collection(BOARD_COLLECTION_NAME)
+            .findOne({
+                _id: new ObjectId(boardId),
+            })
+    } catch (error) {
+        throw new Error(error)
+    }
+}
 
 export const boardModel = {
     BOARD_COLLECTION_NAME,
     BOARD_COLLECTION_SCHEMA,
     createNew,
     findOneById,
-};
+    getDetails,
+}

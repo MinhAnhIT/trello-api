@@ -1,18 +1,20 @@
-import express from "express";
-import { StatusCodes } from "http-status-codes";
-import { boardValidation } from "~/validations/boardValidation";
-import { boardController } from "~/controllers/boardController";
+import express from 'express';
+import { StatusCodes } from 'http-status-codes';
+import { boardValidation } from '~/validations/boardValidation';
+import { boardController } from '~/controllers/boardController';
 
 const Router = express.Router();
 
-Router.route("/")
+Router.route('/')
     .get((req, res) => {
         res.status(StatusCodes.OK).json({
-            message: "boardRoute get OK",
+            message: 'boardRoute get OK',
         });
     })
     .post(boardValidation.createNew, boardController.createNew);
 
-Router.route("/:id").get(boardController.getDetails).put(); //để update
+Router.route('/:id')
+    .get(boardController.getDetails)
+    .put(boardValidation.update, boardController.update); //để update
 
 export const boardRoute = Router;

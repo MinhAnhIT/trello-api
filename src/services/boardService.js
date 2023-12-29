@@ -16,7 +16,9 @@ const createNew = async (reqBody) => {
         const createdBoard = await boardModel.createNew(newBoard);
 
         // Lấy dữ liệu vừa tạo trong DB dựa vào id trả về từ createdBoard (tùy dự án có cần hay không)
-        const getNewBoard = await boardModel.findOneById(createdBoard.insertedId);
+        const getNewBoard = await boardModel.findOneById(
+            createdBoard.insertedId
+        );
 
         // Trả dữ liệu về Controller
         return getNewBoard;
@@ -38,7 +40,9 @@ const getDetails = async (boardId) => {
 
         // Thực hiện tách Card và chuyển vào Column tương ứng
         resBoard.columns.forEach((column) => {
-            column.cards = resBoard.cards.filter((card) => card.columnId.toString() === column._id.toString());
+            column.cards = resBoard.cards.filter(
+                (card) => card.columnId.toString() === column._id.toString()
+            );
         });
 
         // Xóa cards khỏi resBoard
@@ -51,7 +55,22 @@ const getDetails = async (boardId) => {
     }
 };
 
+const update = async (boardId, reqBody) => {
+    try {
+        const updateData = {
+            ...reqBody,
+            updatedAt: Date.now(),
+        };
+        // Gọi tới tầng model
+        const updatedBoard = await boardModel.update(boardId, updateData);
+        return updatedBoard;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const boardService = {
     createNew,
     getDetails,
+    update,
 };

@@ -40,8 +40,21 @@ const update = async (req, res, next) => {
     }
 };
 
+const moveCardToDifferentColumn = async (req, res, next) => {
+    try {
+        // Chuyển dữ liệu sang Service
+        const result = await boardService.moveCardToDifferentColumn(req.body);
+
+        // Có kết quả từ Service thì trả về Client
+        res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const boardController = {
     createNew,
     getDetails,
     update,
+    moveCardToDifferentColumn,
 };

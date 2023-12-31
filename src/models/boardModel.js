@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { BOARD_TYPES } from '~/config/environment';
 import { columnModel } from './columnModel';
 import { cardModel } from './cardModel';
+import { OBJECT_ID_RULE, OBJECT_ID_RULE_MESSAGE } from '~/utils/validators';
 
 // Define Collection (name & schema)
 const BOARD_COLLECTION_NAME = 'boards';
@@ -15,7 +16,11 @@ const BOARD_COLLECTION_SCHEMA = Joi.object({
         .valid(BOARD_TYPES.PUBLIC, BOARD_TYPES.PRIVATE)
         .required(),
 
-    columnOrderIds: Joi.array().items(Joi.string()).default([]),
+    columnOrderIds: Joi.array()
+        .items(
+            Joi.string().pattern(OBJECT_ID_RULE).message(OBJECT_ID_RULE_MESSAGE)
+        )
+        .default([]),
 
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
@@ -118,6 +123,14 @@ const update = async (boardId, updateData) => {
                 delete updateData[fieldName];
             }
         });
+
+        // Xử lí dữ liệu liên quan tới ObjectId thành ObjectId
+        if (updateData.columnOrderIds) {
+            updateData.columnOrderIds = updateData.columnOrderIds.map(
+                (_id) => new ObjectId(_id)
+            );
+        }
+
         const result = await GET_DB()
             .collection(BOARD_COLLECTION_NAME)
             .findOneAndUpdate(

@@ -13,7 +13,9 @@ const createNew = async (reqBody) => {
         const createdColumn = await columnModel.createNew(newColumn);
 
         // Lấy dữ liệu vừa tạo trong DB dựa vào id trả về từ createdColumn (tùy dự án có cần hay không)
-        const getNewColumn = await columnModel.findOneById(createdColumn.insertedId);
+        const getNewColumn = await columnModel.findOneById(
+            createdColumn.insertedId
+        );
 
         if (getNewColumn) {
             getNewColumn.card = [];
@@ -29,6 +31,21 @@ const createNew = async (reqBody) => {
     }
 };
 
+const update = async (columnId, reqBody) => {
+    try {
+        const updateData = {
+            ...reqBody,
+            updatedAt: Date.now(),
+        };
+        // Gọi tới tầng model
+        const updatedColumn = await columnModel.update(columnId, updateData);
+        return updatedColumn;
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const columnService = {
     createNew,
+    update,
 };

@@ -30,6 +30,9 @@ const validateBeforeCreate = async (data) => {
     });
 };
 
+// chỉ định những trường không cho phép cập nhật
+const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt'];
+
 const createNew = async (data) => {
     try {
         // Valid dữ liệu
@@ -79,10 +82,40 @@ const pushCardOrderIds = async (card) => {
     }
 };
 
+// update
+const update = async (columnId, updateData) => {
+    try {
+        // Lọc những field không cho phép cập nhật
+        Object.keys(updateData).forEach((fieldName) => {
+            if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+                delete updateData[fieldName];
+            }
+        });
+
+        // Xử lí dữ liệu liên quan tới ObjectId thành ObjectId
+        if (updateData.cardOrderIds) {
+            updateData.cardOrderIds = updateData.cardOrderIds.map(
+                (_id) => new ObjectId(_id)
+            );
+        }
+
+        const result = await GET_DB()
+            .collection(COLUMN_COLLECTION_NAME)
+            .findOneAndUpdate(
+                { _id: new ObjectId(columnId) },
+                { $set: updateData },
+                { returnDocument: 'after' }
+            );
+    } catch (error) {
+        throw new Error(error);
+    }
+};
+
 export const columnModel = {
     COLUMN_COLLECTION_NAME,
     COLUMN_COLLECTION_SCHEMA,
     createNew,
     findOneById,
     pushCardOrderIds,
+    update,
 };

@@ -26,7 +26,21 @@ const update = async (req, res, next) => {
     }
 };
 
+const deleteItem = async (req, res, next) => {
+    try {
+        const columnId = req.params.id;
+        // Chuyển dữ liệu sang Service
+        const deleteColumn = await columnService.deleteItem(columnId);
+
+        // Có kết quả từ Service thì trả về Client
+        res.status(StatusCodes.OK).json(deleteColumn);
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const columnController = {
     createNew,
     update,
+    deleteItem,
 };

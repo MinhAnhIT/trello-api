@@ -1,6 +1,9 @@
 import { slugify } from '~/utils/formatters';
 import { columnModel } from '~/models/columnModel';
 import { boardModel } from '~/models/boardModel';
+import { cardModel } from '~/models/cardModel';
+import ApiError from '~/utils/ApiError';
+import { StatusCodes } from 'http-status-codes';
 
 const createNew = async (reqBody) => {
     try {
@@ -45,7 +48,27 @@ const update = async (columnId, reqBody) => {
     }
 };
 
+const deleteItem = async (columnId) => {
+    try {
+        const targetColumn = await columnModel.findOneById(columnId);
+        if (!targetColumn) {
+            throw new ApiError(StatusCodes.NOT_FOUND, 'Column NOT FOUND!');
+        }
+        // Gọi tới tầng model để xóa Column
+        await columnModel.deleteOneById(columnId);
+        // Gọi tới tầng model để xóa các Card thuộc Column đó
+        await cardModel.deleteManyByColumnId(columnId);
+        // Xóa column đó ra khỏi columnOrderIds của board chứa nó
+        await boardModel.pullColumnOrderIds(targetColumn);
+
+        return { deleteResult: 'Delete Succesfully!' };
+    } catch (error) {
+        throw error;
+    }
+};
+
 export const columnService = {
     createNew,
     update,
+    deleteItem,
 };
